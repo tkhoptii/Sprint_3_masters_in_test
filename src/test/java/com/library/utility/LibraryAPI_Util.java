@@ -10,7 +10,28 @@ import static io.restassured.RestAssured.given;
 
 public class LibraryAPI_Util {
 
+public static String getToken(String email, String password){
 
+return given()
+        .contentType(ContentType.URLENC)
+        .formParam("email",email)
+        .formParam("password",password)
+.when()
+        .post(ConfigurationReader.getProperty("library.baseUri")+"/login")
+        .prettyPeek()
+.then()
+        .statusCode(200)
+        .extract().jsonPath().getString("token");
+}
+
+public static String  getToken(String userType){
+
+    String email = ConfigurationReader.getProperty(userType + "_username");
+    String password = ConfigurationReader.getProperty(userType + "_password");
+
+    return getToken(email,password);
+
+}
 
 
 
