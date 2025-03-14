@@ -1,5 +1,9 @@
 package com.library.steps;
 
+import com.library.pages.BookPage;
+import com.library.pages.LoginPage;
+import com.library.utility.DB_Util;
+import com.library.utility.DatabaseHelper;
 import com.library.utility.LibraryAPI_Util;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -123,4 +127,37 @@ public class APIStepDefs {
         }
 
     }
+
+    @Then("created user information should match with Database")
+    public void created_user_information_should_match_with_database() {
+
+        int id = jp.getInt("user_id");
+        String query = DatabaseHelper.getUserByIdQuery(id);
+        DB_Util.runQuery(query);
+        Map<String, Object> actualUserDataDB = DB_Util.getRowMap(1);
+        String password = (String) randomData.remove("password");
+        Assert.assertEquals(randomData, actualUserDataDB);
+        randomData.put("password", password);
+    }
+
+    @Then("created user should be able to login Library UI")
+    public void created_user_should_be_able_to_login_library_ui() {
+
+        LoginPage loginPage = new LoginPage();
+        String email = (String) randomData.get("email");
+        String password = (String) randomData.get("password");
+        loginPage.login(email, password);
+
+    }
+
+    @Then("created user name should appear in Dashboard Page")
+    public void created_user_name_should_appear_in_dashboard_page() {
+
+        BookPage bookPage = new BookPage();
+        String fullNameFromUI = bookPage.accountHolderName.getText();
+        String fullNameAPI = (String) randomData.get("full_name");
+
+        Assert.assertEquals(fullNameAPI, fullNameFromUI);
+    }
+
 }
